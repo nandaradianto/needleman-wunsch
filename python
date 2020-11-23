@@ -1,4 +1,6 @@
-class SequenceAlignment(object):
+import numpy as np
+
+class NeedlemanWunsch(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -49,6 +51,7 @@ class SequenceAlignment(object):
                     OPT[i - 1][j - 1] + self.delta(self.x, self.y, i - 1, j - 1),
                     OPT[i - 1][j] + 1,
                     OPT[i][j - 1] + 1,)
+                    
 
         self.find_solution(OPT, m, n)
 
@@ -62,3 +65,60 @@ if __name__ == '__main__':
      min_edit, steps = sqalign.alignment()
      print('Total Alignments: ' + str(min_edit))
      print('The steps: ' + str(steps))
+
+main_matrix = np.zeros((len(x)+1,len(y)+1))
+match_checker_matrix = np.zeros((len(x),len(y)))
+
+
+match_reward = 1
+mismatch_penalty = -1
+gap_penalty = -2
+
+
+for i in range(len(x)):
+    for j in range(len(y)):
+        if x[i] == y[j]:
+            match_checker_matrix[i][j]= match_reward
+        else:
+            match_checker_matrix[i][j]= mismatch_penalty
+
+for i in range(len(x)+1):
+    main_matrix[i][0] = i*gap_penalty
+for j in range(len(y)+1):
+    main_matrix[0][j] = j * gap_penalty
+
+for i in range(1,len(x)+1):
+    for j in range(1,len(y)+1):
+        main_matrix[i][j] = max(main_matrix[i-1][j-1]+match_checker_matrix[i-1][j-1],
+                                main_matrix[i-1][j]+gap_penalty,
+                                main_matrix[i][j-1]+ gap_penalty)
+
+aligned_1 = ""
+aligned_2 = ""
+
+ti = len(x)
+tj = len(y)
+
+while(ti >0 and tj > 0):
+
+    if (ti >0 and tj > 0 and main_matrix[ti][tj] == main_matrix[ti-1][tj-1]+ match_checker_matrix[ti-1][tj-1]):
+
+        aligned_1 = x[ti-1] + aligned_1
+        aligned_2 = y[tj-1] + aligned_2
+
+        ti = ti - 1
+        tj = tj - 1
+    
+    elif(ti > 0 and main_matrix[ti][tj] == main_matrix[ti-1][tj] + gap_penalty):
+        aligned_1 = x[ti-1] + aligned_1
+        aligned_2 = "-" + aligned_2
+
+        ti = ti -1
+    else:
+        aligned_1 = "-" + aligned_1
+        aligned_2 = y[tj-1] + aligned_2
+
+        tj = tj - 1
+
+print(aligned_1)
+print(aligned_2)
