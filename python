@@ -10,7 +10,6 @@ class SequenceAlignment(object):
         if m == 0 and n == 0:
             return
 
-        # We can only do insert if n != 0, align if there are element in both x, y, etc.
         insert = OPT[m][n - 1] + 1 if n != 0 else float("inf")
         align = (
             OPT[m - 1][n - 1] + self.delta(self.x, self.y, m - 1, n - 1)
